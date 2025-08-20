@@ -20,6 +20,14 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
         
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      
+    - name: Create local.properties
+      run: |
+        echo "sdk.dir=$ANDROID_HOME" > local.properties
+        echo "ndk.dir=$ANDROID_HOME/ndk-bundle" >> local.properties
+        
     - name: Cache Gradle dependencies
       uses: actions/cache@v4
       with:
@@ -32,6 +40,9 @@ jobs:
           
     - name: Make gradlew executable
       run: chmod +x ./gradlew
+      
+    - name: Accept Android SDK licenses
+      run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
       
     - name: Clean Project
       run: ./gradlew clean
@@ -83,10 +94,6 @@ jobs:
           ### 📱 Download APK
           - **Release APK**: For general distribution (recommended)
           - **Debug APK**: For testing and development
-          
-          ### 🔄 Changelog
-          - Bug fixes and improvements
-          - Updated to latest dependencies
           
           ### 📋 System Requirements
           - Android 5.0 (API level 21) or higher
