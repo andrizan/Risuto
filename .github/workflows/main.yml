@@ -21,7 +21,7 @@ jobs:
         distribution: 'temurin'
         
     - name: Cache Gradle dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.gradle/caches
@@ -73,12 +73,10 @@ jobs:
         
     - name: Create Release
       id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v2
       with:
         tag_name: ${{ steps.version.outputs.version }}
-        release_name: Risuto ${{ steps.version.outputs.version }}
+        name: Risuto ${{ steps.version.outputs.version }}
         body: |
           ## Risuto Release ${{ steps.version.outputs.version }}
           
@@ -98,29 +96,12 @@ jobs:
           **Note**: Release APK is optimized for best performance.
         draft: false
         prerelease: false
-        
-    - name: Upload Release APK
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{ steps.apk_path.outputs.release_apk }}
-        asset_name: Risuto-release-${{ steps.version.outputs.version }}.apk
-        asset_content_type: application/vnd.android.package-archive
-        
-    - name: Upload Debug APK
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{ steps.apk_path.outputs.debug_apk }}
-        asset_name: Risuto-debug-${{ steps.version.outputs.version }}.apk
-        asset_content_type: application/vnd.android.package-archive
+        files: |
+          ${{ steps.apk_path.outputs.release_apk }}
+          ${{ steps.apk_path.outputs.debug_apk }}
         
     - name: Upload APK Artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: apk-artifacts-${{ steps.version.outputs.version }}
         path: |
